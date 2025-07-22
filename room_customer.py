@@ -1,4 +1,4 @@
-# Room class
+
 class Room:
     def __init__(self, room_number, room_type, price, status='Available'):
         self.room_number = room_number
@@ -10,7 +10,7 @@ class Room:
         print(f"Room {self.room_number} - {self.room_type} - ${self.price} - {self.status}")
 
 
-# Customer class
+
 class Customer:
     def __init__(self, name, id_number, contact):
         self.name = name
