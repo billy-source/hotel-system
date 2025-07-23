@@ -1,12 +1,9 @@
-# room_customer.py
-
-# Room class to represent hotel rooms
 class Room:
     def __init__(self, room_number, room_type, price_per_night, status="Available"):
         self.room_number = room_number
         self.room_type = room_type
         self.price_per_night = price_per_night
-        self.status = status  # Can be: Available, Booked, Maintenance
+        self.status = status
 
     def book_room(self):
         if self.status == "Available":
@@ -27,13 +24,12 @@ class Room:
         print(f"Room No: {self.room_number} | Type: {self.room_type} | Price: ${self.price_per_night}/night | Status: {self.status}")
 
 
-# Customer class to represent hotel guests
 class Customer:
     def __init__(self, name, id_number, contact_number):
         self.name = name
         self.id_number = id_number
         self.contact_number = contact_number
-        self.room = None  # This will store the Room object assigned to the customer
+        self.room = None  
 
     def assign_room(self, room: Room):
         if room.status == "Available":
@@ -62,7 +58,7 @@ def main():
     room1 = Room(101, "Single", 50)
     room2 = Room(102, "Double", 80)
 
-    # Create a customer
+    
     customer1 = Customer("Billy kemboi", "ID12345", "0712345678")
 
     
@@ -73,11 +69,11 @@ def main():
     print("\nCustomer Info Before Booking:")
     customer1.display_info()
 
-    # Assign room
+    
     print("\nBooking Room...")
     customer1.assign_room(room1)
 
-    # Display info after booking
+
     print("\nCustomer Info After Booking:")
     customer1.display_info()
 
