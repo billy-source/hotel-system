@@ -1,3 +1,5 @@
+
+
 class Room:
     def __init__(self, room_number, room_type, price_per_night, status="Available"):
         self.room_number = room_number
