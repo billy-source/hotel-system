@@ -1,26 +1,29 @@
 # utils.py
 import json
 import os
-from tkinter import simpledialog, messagebox
 
-def load_json(filename):
-    if not os.path.exists(filename):
-        with open(filename, "w") as f:
-            json.dump([], f)
-    with open(filename, "r") as f:
+ROOMS_FILE = "rooms.json"
+BOOKINGS_FILE = "bookings.json"
+
+def load_data(file, default):
+    if not os.path.exists(file):
+        with open(file, "w") as f:
+            json.dump(default, f)
+    with open(file, "r") as f:
         return json.load(f)
 
-def save_json(filename, data):
-    with open(filename, "w") as f:
+def save_data(file, data):
+    with open(file, "w") as f:
         json.dump(data, f, indent=4)
 
-def prompt_mpesa_number():
-    number = simpledialog.askstring("Payment", "Enter your MPESA number:")
-    if not number or not number.isdigit() or len(number) != 10:
-        messagebox.showerror("Invalid", "Enter a valid 10-digit MPESA number")
-        return None
-    return number
+def load_rooms():
+    return load_data(ROOMS_FILE, [])
 
-def notify_admin(message):
-    print("[ADMIN ALERT]:", message)
-    messagebox.showinfo("Admin Notification", message)
+def save_rooms(data):
+    save_data(ROOMS_FILE, data)
+
+def load_bookings():
+    return load_data(BOOKINGS_FILE, [])
+
+def save_bookings(data):
+    save_data(BOOKINGS_FILE, data)

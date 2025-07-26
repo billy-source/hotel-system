@@ -2,5 +2,8 @@
     {
         "type": "double",
         "price": 1000
+    },
+    {
+        "name": "100"
     }
 ]

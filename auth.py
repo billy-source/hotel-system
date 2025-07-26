@@ -1,80 +1,109 @@
 # auth.py
 import tkinter as tk
 from tkinter import messagebox
-from utils import load_json, save_json
+import json
+import hashlib
+from admin_dashboard import admin_dashboard
+from customer_dashboard import customer_dashboard
 
 USERS_FILE = "users.json"
 
-def init_users():
-    if not load_json(USERS_FILE):
-        admin = {
-            "username": "admin",
-            "password": "admin123",
-            "role": "admin"
-        }
-        save_json(USERS_FILE, [admin])
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
 
-def save_user(user):
-    users = load_json(USERS_FILE)
-    users.append(user)
-    save_json(USERS_FILE, users)
+def load_users():
+    try:
+        with open(USERS_FILE, "r") as f:
+            return json.load(f)
+    except:
+        return []
 
-def find_user(username, password):
-    users = load_json(USERS_FILE)
-    for user in users:
-        if user["username"] == username and user["password"] == password:
-            return user
-    return None
+def save_users(users):
+    with open(USERS_FILE, "w") as f:
+        json.dump(users, f, indent=4)
 
-def user_exists(username):
-    users = load_json(USERS_FILE)
-    return any(user["username"] == username for user in users)
+def signup():
+    win = tk.Tk()
+    win.title("Sign Up")
+    win.geometry("300x300")
 
-def login_screen(on_success):
-    window = tk.Tk()
-    window.title("Hotel System - Login")
-    window.geometry("300x250")
+    tk.Label(win, text="Username").pack()
+    username_entry = tk.Entry(win)
+    username_entry.pack()
 
-    def handle_login():
-        username = entry_username.get()
-        password = entry_password.get()
-        user = find_user(username, password)
-        if user:
-            messagebox.showinfo("Success", f"Welcome {user['role'].capitalize()}")
-            window.destroy()
-            on_success(user)
-        else:
-            messagebox.showerror("Login Failed", "Incorrect username or password")
+    tk.Label(win, text="Password").pack()
+    password_entry = tk.Entry(win, show="*")
+    password_entry.pack()
 
-    def handle_signup():
-        username = entry_username.get()
-        password = entry_password.get()
-        role = role_var.get()
+    tk.Label(win, text="Role (admin/customer)").pack()
+    role_entry = tk.Entry(win)
+    role_entry.pack()
 
-        if not username or not password:
-            messagebox.showwarning("Incomplete", "Enter all fields")
-            return
-        if user_exists(username):
-            messagebox.showwarning("Exists", "Username already exists")
+    def register():
+        username = username_entry.get()
+        password = password_entry.get()
+        role = role_entry.get().lower()
+
+        if role not in ["admin", "customer"]:
+            messagebox.showerror("Error", "Role must be admin or customer")
             return
 
-        user = {"username": username, "password": password, "role": role}
-        save_user(user)
-        messagebox.showinfo("Signup Successful", "You can now login")
+        users = load_users()
 
-    tk.Label(window, text="Username").pack(pady=5)
-    entry_username = tk.Entry(window)
-    entry_username.pack()
+        for user in users:
+            if user["username"] == username:
+                messagebox.showerror("Error", "Username already exists")
+                return
 
-    tk.Label(window, text="Password").pack(pady=5)
-    entry_password = tk.Entry(window, show="*")
-    entry_password.pack()
+        users.append({
+            "username": username,
+            "password": hash_password(password),
+            "role": role
+        })
+        save_users(users)
+        messagebox.showinfo("Success", "Account created successfully")
+        win.destroy()
 
-    tk.Label(window, text="Role").pack(pady=5)
-    role_var = tk.StringVar(value="customer")
-    tk.OptionMenu(window, role_var, "admin", "customer").pack()
+    tk.Button(win, text="Register", command=register).pack(pady=10)
+    tk.Button(win, text="Back", command=lambda: [win.destroy(), import_main()]).pack()
 
-    tk.Button(window, text="Login", command=handle_login).pack(pady=5)
-    tk.Button(window, text="Signup", command=handle_signup).pack()
+    win.mainloop()
 
-    window.mainloop()
+def login():
+    win = tk.Tk()
+    win.title("Login")
+    win.geometry("300x250")
+
+    tk.Label(win, text="Username").pack()
+    username_entry = tk.Entry(win)
+    username_entry.pack()
+
+    tk.Label(win, text="Password").pack()
+    password_entry = tk.Entry(win, show="*")
+    password_entry.pack()
+
+    def authenticate():
+        username = username_entry.get()
+        password = password_entry.get()
+        hashed = hash_password(password)
+        users = load_users()
+
+        for user in users:
+            if user["username"] == username and user["password"] == hashed:
+                win.destroy()
+                if user["role"] == "admin":
+                    admin_dashboard(username)
+                else:
+                    customer_dashboard(username)
+                return
+
+        messagebox.showerror("Error", "Invalid credentials")
+
+    tk.Button(win, text="Login", command=authenticate).pack(pady=10)
+    tk.Button(win, text="Back", command=lambda: [win.destroy(), import_main()]).pack()
+
+    win.mainloop()
+
+def import_main():
+    import main
+    main.show_main_menu()
