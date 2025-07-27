@@ -5,5 +5,15 @@
     },
     {
         "name": "100"
+    },
+    {
+        "number": "001",
+        "type": "suite",
+        "price": "1000"
+    },
+    {
+        "number": "001",
+        "type": "suite",
+        "price": "1000"
     }
 ]

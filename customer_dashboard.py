@@ -1,87 +1,58 @@
 import tkinter as tk
-from tkinter import messagebox, simpledialog
-import json
-import os
-
-from main import show_main_menu
+from tkinter import messagebox
+import json, os
 
 ROOMS_FILE = "rooms.json"
 BOOKINGS_FILE = "bookings.json"
 
-
 def load_rooms():
-    if not os.path.exists(ROOMS_FILE):
-        with open(ROOMS_FILE, "w") as f:
-            json.dump([], f)
-    with open(ROOMS_FILE, "r") as f:
+    with open(ROOMS_FILE) as f:
         return json.load(f)
 
-
-def save_bookings(bookings):
-    with open(BOOKINGS_FILE, "w") as f:
-        json.dump(bookings, f, indent=4)
-
-
-def load_bookings():
+def save_booking(booking):
     if not os.path.exists(BOOKINGS_FILE):
         with open(BOOKINGS_FILE, "w") as f:
             json.dump([], f)
-    with open(BOOKINGS_FILE, "r") as f:
-        return json.load(f)
+    with open(BOOKINGS_FILE) as f:
+        bookings = json.load(f)
+    bookings.append(booking)
+    with open(BOOKINGS_FILE, "w") as f:
+        json.dump(bookings, f, indent=4)
 
-
-def customer_dashboard(username):
+def customer_dashboard(user):
     win = tk.Tk()
-    win.title(f"Customer Dashboard - {username}")
-    win.geometry("600x400")
+    win.title("Customer Dashboard")
+    win.geometry("500x500")
 
-    tk.Label(win, text=f"Welcome, {username}", font=("Arial", 14)).pack(pady=10)
+    tk.Label(win, text=f"Welcome, {user['username']}", font=("Arial", 14)).pack(pady=10)
 
-    room_listbox = tk.Listbox(win, width=80)
-    room_listbox.pack(pady=10)
+    listbox = tk.Listbox(win, width=60)
+    listbox.pack(pady=10)
 
-    def refresh_rooms():
-        room_listbox.delete(0, tk.END)
-        rooms = load_rooms()
-        if rooms:
-            for room in rooms:
-                room_listbox.insert(tk.END, f"Room No: {room['room_no']} | Type: {room['room_type']} | Price: {room['price']}")
-        else:
-            room_listbox.insert(tk.END, "No rooms available.")
+    def load_available_rooms():
+        listbox.delete(0, tk.END)
+        for r in load_rooms():
+            listbox.insert(tk.END, f"Room {r['number']} - {r['type']} - KES {r['price']}")
+
+    tk.Button(win, text="View Available Rooms", command=load_available_rooms).pack()
 
     def book_selected_room():
-        selected_index = room_listbox.curselection()
-        if not selected_index:
-            messagebox.showerror("Error", "Please select a room to book.")
-            return
+        index = listbox.curselection()
+        if not index:
+            return messagebox.showerror("Error", "Select a room")
+        room = load_rooms()[index[0]]
 
-        rooms = load_rooms()
-        selected_room = rooms[selected_index[0]]
+        mpesa = tk.simpledialog.askstring("MPESA", "Enter MPESA number:")
+        if not mpesa:
+            return messagebox.showerror("Error", "MPESA number required")
 
-        mpesa_number = simpledialog.askstring("MPESA Payment", "Enter your MPESA number:")
-        if not mpesa_number:
-            messagebox.showerror("Error", "MPESA number is required.")
-            return
-
-        bookings = load_bookings()
-        bookings.append({
-            "username": username,
-            "room_no": selected_room['room_no'],
-            "room_type": selected_room['room_type'],
-            "price": selected_room['price'],
-            "mpesa_number": mpesa_number
+        save_booking({
+            "username": user["username"],
+            "room": room["number"],
+            "mpesa": mpesa
         })
+        messagebox.showinfo("Booked", "Room booked successfully!")
 
-        save_bookings(bookings)
-        messagebox.showinfo("Success", f"Room {selected_room['room_no']} booked successfully!")
+    tk.Button(win, text="Book Room", command=book_selected_room, bg="orange").pack(pady=10)
 
-    def logout():
-        win.destroy()
-        show_main_menu()
-
-    tk.Button(win, text="Refresh Rooms", command=refresh_rooms).pack(pady=5)
-    tk.Button(win, text="Book Selected Room", command=book_selected_room).pack(pady=5)
-    tk.Button(win, text="Logout", command=logout).pack(pady=5)
-
-    refresh_rooms()
     win.mainloop()

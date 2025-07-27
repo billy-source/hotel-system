@@ -23,5 +23,20 @@
         "username": "KEMBOI",
         "password": "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f",
         "role": "customer"
+    },
+    {
+        "username": "ADMIN",
+        "password": "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f",
+        "role": "admin"
+    },
+    {
+        "username": "kibiwot",
+        "password": "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f",
+        "role": "customer"
+    },
+    {
+        "username": "kemboi",
+        "password": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
+        "role": "admin"
     }
 ]
